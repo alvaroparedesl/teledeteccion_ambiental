@@ -43,7 +43,7 @@ v1 = muestreo.sjoin(catveg[catveg_cols]).reset_index(drop=True)
 
 
 #----------- Rasters de Variables Funcionales
-rasters_names = ["Cummulative Greenness", "ETF", "Minimum Greenness", "Season Length", "Seasonal Variation"]
+rasters_names = ["Cummulative Greenness", "EFT", "Minimum Greenness", "Season Length", "Seasonal Variation"]
 
 ras = []
 for r in rasters_names:
@@ -138,6 +138,23 @@ v4 = pd.merge(v3, inds)
 ## Exportando a shapefile y CSV
 v4.to_file("puntos_muestreo_data.shp")
 v4.drop(columns="geometry").to_csv("puntos_muestreo_data.csv", index=False)
+
+
+#-------- Estadísticas generales variables funcionales
+from xrspatial.zonal import stats
+
+zonas = []
+zon = vf.eft.fillna(0) # no pueden haber nan
+for b in vf.data_vars:
+    if b != 'eft':
+        _ = stats(zones=zon, values=vf[b])
+        _["vf"] = b
+        _["area_km2"] = (np.abs(vf.rio.resolution()).prod() * _["count"] / 10**6).round(2)
+        zonas.append(_)
+
+out = pd.concat(zonas).set_index("vf").reset_index()
+out.rename(columns={"zone": "eft"}, inplace=True)
+out.to_csv("efts_stats.csv", index=False)
 
 
 client.close()
