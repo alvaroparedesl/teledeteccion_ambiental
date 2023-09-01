@@ -25,7 +25,7 @@ client = Client(cluster)
 
 configure_s3_access(aws_unsigned=False, requester_pays=True, client=client)
 
-dc = datacube.Datacube(app='Taller 1') 
+dc = datacube.Datacube(app='Taller 1')
 
 #--------------------- Lectura vectores ------------------
 catveg = gpd.read_file("vectores/CatVegeAdeRamón.shp")
