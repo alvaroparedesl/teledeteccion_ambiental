@@ -9,7 +9,7 @@ library(gridExtra)
 
 # Lectura de datos
 ran_points <- read.csv("../taller_02/muestreo_aleatorio.csv")
-ran_points <- subset(ran_points, evi > 0)
+opoints <- ran_points <- subset(ran_points, evi > 0)
 # ran_points <- ran_points[sample(1:nrow(ran_points), 1000), ]
 
 # Lista de variables
@@ -117,3 +117,46 @@ data.frame(cor=c(cor(obs, est_i), cor(obs, est_i_auto)),
 # 4. Pruebe diferentes modelos de variograma y verifique cuál ajusta de mejor manera.
 # 5. Basado en los experimentos anteriores ¿existe una dirección clara de cambio? 
 #    ¿Cambia o depende mucho de la variable? ¿qué modelo es mejor?
+
+
+#---------------------------------------
+#----------- Parte 2 -------------------
+#---------------------------------------
+
+# Cálculo de variograma cruzado usando objetos gstat --------------
+
+# Creación de objeto gstat para modelo de variograma
+(vc_i <- variogram(evi ~ elevation, data = ran_points, cutoff = diag_/3, width = diag_/3/15))
+plot(vc_i)
+
+gstat
+
+
+g <- gstat(NULL,"evi", evi~elevation * slope * aspect_sin * aspect_cos, ran_points)
+g <- gstat(g, "ndvi", ndvi~elevation, ran_points)
+
+(v <- variogram(g, cutoff = diag_/3, width = diag_/3/15)) # creating variogram models
+plot(v)
+
+gm = gstat(g, model = vgm(nugget=0.005, psill=0.009, range = 4000,  model = "Gau"), 
+           fill.all = TRUE) #model variograms
+g_fit = fit.lmc(v, gm) # fit models
+plot(v, g_fit) # plot variograms and models
+
+g_fit
+
+v_map <- variogram(g, cutoff = diag_/3, width = diag_/3/15, map=T) # creating variogram models
+plot(v_map, threshold = 5, col.regions = terrain.colors)
+
+
+# Cálculo de coeficiente de codispersion ======
+library(SpatialPack)
+
+x <- opoints$evi
+y <- opoints$elevation
+
+coords <- opoints[, c("x", "y")]
+
+# calcular el coeficiente de codispersión
+(z <- codisp(x, y, coords))
+plot(z)
