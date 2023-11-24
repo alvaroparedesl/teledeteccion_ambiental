@@ -2,7 +2,7 @@ from skimage.feature import graycomatrix, graycoprops
 import numpy as np
 import math
 from itertools import product
-from dask.distributed import print as dprint
+# from dask.distributed import print as dprint
 
 def get_circular_kernel(diameter, type=None):
 
